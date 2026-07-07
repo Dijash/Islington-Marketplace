@@ -1,0 +1,106 @@
+<nav class="navbar">
+    
+    <a href="/" class="nav-brand{% if request.resolver_match.url_name == 'home' %} nav-brand-active{% endif %}">
+        <div class="brand-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linejoin="round">
+                <path d="M3 7.5h2.5m0 0V6m0 1.5H8m0 0V6m0 1.5h2.5m0 0V6m0 1.5H13m-6.5 2h1m1 0h1m-1 1.5h1m-3 0h1m-4 2.5v-6h-1v-2l1.5-3h8l1.5 3v2h-1v6z"/>
+            </svg>
+        </div>
+        <div class="brand-text">
+            <span class="brand-line">ISLINGTON</span>
+            <span class="brand-line brand-sub">MARKETPLACE</span>
+        </div>
+    </a>
+
+    <div class="nav-search-container">
+        <input type="text" class="nav-search-input" placeholder="Search Islington vendors, categories, and products...">
+        <button class="nav-search-btn">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div class="nav-links">
+        <a href="{% url 'product_list' %}" class="nav-link{% if request.resolver_match.url_name == 'product_list' %} nav-link-active{% endif %}">All Products</a>
+        <a href="{% url 'category_list' %}" class="nav-link{% if request.resolver_match.url_name == 'category_list' %} nav-link-active{% endif %}">Categories</a>
+        <a href="{% url 'deals' %}" class="nav-link nav-link-highlight{% if request.resolver_match.url_name == 'deals' %} nav-link-active{% endif %}">Deals</a>
+    </div>
+
+    <div class="nav-actions">
+        
+        <a href="#" class="action-link">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            </svg>
+            <div class="action-text">
+                <span class="action-label">Track & Manage</span>
+                <span class="action-value">Orders</span>
+            </div>
+        </a>
+
+        {% if user.is_authenticated %}
+        <div class="nav-dropdown">
+            <button class="action-link nav-dropdown-trigger">
+                <div class="nav-avatar">
+                  {% if user.profile and user.profile.image.name %}
+                    <img src="{{ user.profile.image.url }}" alt="" class="nav-avatar-img">
+                  {% else %}
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                  {% endif %}
+                </div>
+                <div class="action-text">
+                    <span class="action-label">{{ user.first_name|default:user.username }}</span>
+                    <span class="action-value">{% if user.is_staff %}Admin{% elif user.profile %}{{ user.profile.get_user_type_display }}{% endif %}</span>
+                </div>
+                <svg class="dropdown-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/>
+                </svg>
+            </button>
+            <div class="nav-dropdown-menu">
+                <a href="#" class="nav-dropdown-item">My Profile</a>
+                <a href="#" class="nav-dropdown-item">Dashboard</a>
+                <a href="{% url 'logout' %}" class="nav-dropdown-item">Sign Out</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="nav-dropdown">
+            <button class="action-link nav-dropdown-trigger">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <div class="action-text">
+                    <span class="action-label">Sign In</span>
+                    <span class="action-value">Account</span>
+                </div>
+                <svg class="dropdown-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/>
+                </svg>
+            </button>
+            <div class="nav-dropdown-menu">
+                <a href="{% url 'login' %}" class="nav-dropdown-item">Sign In</a>
+                <a href="{% url 'register' %}" class="nav-dropdown-item">Create Account</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <svg class="sun-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            <svg class="moon-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+            </svg>
+        </button>
+
+        <a href="#" class="cart-btn">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <span>₹0.00</span>
+        </a>
+        
+    </div>
+</nav>

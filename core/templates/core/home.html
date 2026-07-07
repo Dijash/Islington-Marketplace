@@ -1,0 +1,72 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block body_class %}home-page{% endblock %}
+
+{% block title %}
+  Islington Marketplace | Home
+{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/core/home/ad-section.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="hero-carousel" id="heroCarousel">
+  <div class="hero-carousel-track" id="heroTrack">
+    <div class="hero-slide active" data-index="0">
+      <div class="hero-slide-bg"></div>
+      <div class="hero-slide-overlay"></div>
+      <div class="hero-slide-content">
+        <span class="hero-badge">Flash Sale</span>
+        <h2 class="hero-heading">Up to 50% Off</h2>
+        <p class="hero-text">On premium lifestyle goods. Limited stock available.</p>
+        <a href="{% url 'product_list' %}" class="hero-cta">Shop Now</a>
+      </div>
+    </div>
+    <div class="hero-slide" data-index="1">
+      <div class="hero-slide-bg hero-slide-bg--2"></div>
+      <div class="hero-slide-overlay"></div>
+      <div class="hero-slide-content">
+        <span class="hero-badge">New Arrivals</span>
+        <h2 class="hero-heading">Fresh Drops</h2>
+        <p class="hero-text">Discover the latest from top brands in Islington.</p>
+        <a href="{% url 'product_list' %}" class="hero-cta">Explore</a>
+      </div>
+    </div>
+    <div class="hero-slide" data-index="2">
+      <div class="hero-slide-bg hero-slide-bg--3"></div>
+      <div class="hero-slide-overlay"></div>
+      <div class="hero-slide-content">
+        <span class="hero-badge">Best Sellers</span>
+        <h2 class="hero-heading">Trending Now</h2>
+        <p class="hero-text">Most loved products this month, handpicked for you.</p>
+        <a href="{% url 'product_list' %}" class="hero-cta">Browse</a>
+      </div>
+    </div>
+    <div class="hero-slide" data-index="3">
+      <div class="hero-slide-bg hero-slide-bg--4"></div>
+      <div class="hero-slide-overlay"></div>
+      <div class="hero-slide-content">
+        <span class="hero-badge">Free Delivery</span>
+        <h2 class="hero-heading">Free Shipping</h2>
+        <p class="hero-text">On orders over Rs. 999. Limited time offer.</p>
+        <a href="{% url 'deals' %}" class="hero-cta">View Deals</a>
+      </div>
+    </div>
+  </div>
+
+  <button class="hero-arrow hero-arrow-prev" id="heroArrowPrev" aria-label="Previous slide">
+    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+    </svg>
+  </button>
+  <button class="hero-arrow hero-arrow-next" id="heroArrowNext" aria-label="Next slide">
+    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+    </svg>
+  </button>
+
+  <div class="hero-dots" id="heroDots"></div>
+</section>
+{% endblock %}

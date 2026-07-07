@@ -1,0 +1,70 @@
+:root {
+  --blue-50:  #EFF6FF;
+  --blue-100: #DBEAFE;
+  --blue-200: #BFDBFE;
+  --blue-300: #93C5FD;
+  --blue-400: #60A5FA;
+  --blue-500: #3B82F6;
+  --blue-600: #2563EB;
+  --blue-700: #1D4ED8;
+  --blue-800: #1E40AF;
+  --blue-900: #1E3A8A;
+  --blue-950: #172554;
+
+  --color-accent: var(--blue-500);
+  --color-accent-dark: var(--blue-600);
+
+  --bg-main: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-input: var(--blue-50);
+  --bg-input-hover: var(--blue-100);
+
+  --text-main: var(--blue-950);
+  --text-muted: var(--blue-400);
+
+  --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-scrolled: 0 4px 20px rgba(0, 0, 0, 0.12);
+
+  --transition-fast: 0.2s ease;
+  --transition-medium: 0.3s ease;
+}
+
+.dark-mode {
+  --bg-main: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-input: #1e293b;
+  --bg-input-hover: #334155;
+
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+
+  --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-scrolled: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+}

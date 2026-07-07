@@ -1,0 +1,16 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="{% block auth_class %}{% endblock %}">
+  <div class="left-panel">
+    <div class="logo">Islington Marketplace</div>
+    <div class="{% block auth_image_class %}image-container{% endblock %}">
+      <img src="{% static 'images/login-image.png' %}" alt="{% block auth_image_alt %}Illustration{% endblock %}">
+    </div>
+  </div>
+  <div class="right-panel">
+    {% block auth_form %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

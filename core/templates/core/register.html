@@ -1,0 +1,151 @@
+{% extends 'layouts/auth_layout.html' %}
+{% load static %}
+
+{% block title %}Create Your Account | Islington Marketplace{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/core/register.css' %}">
+{% endblock %}
+
+{% block auth_class %}register-container{% endblock %}
+
+{% block auth_image_class %}image-placeholder{% endblock %}
+
+{% block auth_image_alt %}Sign Up Illustration{% endblock %}
+
+{% block auth_form %}
+  <div class="form-container">
+    <h1>Create Your<br>Account</h1>
+    <p class="login-link">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% if errors %}
+        <div class="form-errors">
+          {% for error in errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="input-group">
+        <input type="text" name="full_name" placeholder="Full Name" value="{{ values.full_name }}" required>
+      </div>
+
+      <div class="input-group">
+        <input type="email" name="email" placeholder="Email address" value="{{ values.email }}" required>
+      </div>
+
+      <div class="input-group">
+        <input type="password" name="password" placeholder="Password" required>
+        <span class="eye-icon">
+          <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </span>
+      </div>
+
+      <div class="input-group">
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+        <span class="eye-icon">
+          <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </span>
+      </div>
+
+      <div class="user-type-group">
+        <label class="type-option">
+          <input type="radio" name="user_type" value="customer" class="type-radio" {% if values.user_type != 'seller' %}checked{% endif %}>
+          <span class="type-label">Customer</span>
+        </label>
+        <label class="type-option">
+          <input type="radio" name="user_type" value="seller" class="type-radio" {% if values.user_type == 'seller' %}checked{% endif %}>
+          <span class="type-label">Seller</span>
+        </label>
+      </div>
+
+      <div class="photo-upload">
+        <label class="photo-label">
+          <span class="photo-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </span>
+          <span class="photo-text" id="photoText">Upload Profile Photo</span>
+          <input type="file" name="image" id="photoInput" accept="image/*" class="photo-input">
+        </label>
+      </div>
+
+      <div class="input-group">
+        <input type="text" name="shop_name" id="shop_name" placeholder="Business Name" value="{{ values.shop_name }}" disabled>
+      </div>
+
+      <div class="input-group">
+        <input type="text" name="phone" placeholder="Phone Number" value="{{ values.phone }}">
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="terms" required>
+        <label for="terms">I agree to the Terms and Conditions</label>
+      </div>
+
+      <button type="submit" class="btn-signup">Sign up</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.querySelectorAll('.eye-icon').forEach(function(icon) {
+    icon.addEventListener('click', function() {
+      var input = this.previousElementSibling;
+      var open = this.querySelector('.eye-open');
+      var closed = this.querySelector('.eye-closed');
+      if (input.type === 'password') {
+        input.type = 'text';
+        open.style.display = 'none';
+        closed.style.display = 'block';
+      } else {
+        input.type = 'password';
+        open.style.display = 'block';
+        closed.style.display = 'none';
+      }
+    });
+  });
+
+  var photoInput = document.getElementById('photoInput');
+  var photoText = document.getElementById('photoText');
+  if (photoInput) {
+    photoInput.addEventListener('change', function() {
+      photoText.textContent = this.files[0] ? this.files[0].name : 'Upload Profile Photo';
+    });
+  }
+
+  var radios = document.querySelectorAll('.type-radio');
+  var shopInput = document.getElementById('shop_name');
+
+  radios.forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      shopInput.disabled = this.value !== 'seller';
+      if (this.value === 'seller') {
+        shopInput.setAttribute('required', '');
+      } else {
+        shopInput.removeAttribute('required');
+        shopInput.value = '';
+      }
+    });
+  });
+</script>
+{% endblock %}
