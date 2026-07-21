@@ -8,65 +8,314 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/core/home/ad-section.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/product-card.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/blog-card.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/home.css' %}">
 {% endblock %}
 
 {% block content %}
-<section class="hero-carousel" id="heroCarousel">
-  <div class="hero-carousel-track" id="heroTrack">
-    <div class="hero-slide active" data-index="0">
-      <div class="hero-slide-bg"></div>
-      <div class="hero-slide-overlay"></div>
-      <div class="hero-slide-content">
-        <span class="hero-badge">Flash Sale</span>
-        <h2 class="hero-heading">Up to 50% Off</h2>
-        <p class="hero-text">On premium lifestyle goods. Limited stock available.</p>
-        <a href="{% url 'product_list' %}" class="hero-cta">Shop Now</a>
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-col-60">
+        {% if ads %}
+        <div class="ad-carousel">
+          <div class="ad-carousel-track">
+            {% for ad in ads %}
+            <div class="ad-slide{% if forloop.first %} active{% endif %}">
+              {% if ad.inline_image %}
+                <img src="{{ ad.inline_image }}" alt="{{ ad.title }}">
+              {% else %}
+                <div class="ad-fallback">{{ ad.title }}</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          <button class="ad-btn ad-btn-prev" aria-label="Previous ad">&#10094;</button>
+          <button class="ad-btn ad-btn-next" aria-label="Next ad">&#10095;</button>
+          <div class="ad-dots">
+            {% for ad in ads %}
+            <span class="ad-dot{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}"></span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="hero-col-40">
+        {% if side_ads %}
+        <div class="side-ad-carousel">
+          <div class="side-ad-track">
+            {% for ad in side_ads %}
+            <div class="side-ad-slide{% if forloop.first %} active{% endif %}">
+              {% if ad.inline_image %}
+                <img src="{{ ad.inline_image }}" alt="{{ ad.title }}">
+              {% else %}
+                <div class="ad-fallback">{{ ad.title }}</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
       </div>
     </div>
-    <div class="hero-slide" data-index="1">
-      <div class="hero-slide-bg hero-slide-bg--2"></div>
-      <div class="hero-slide-overlay"></div>
-      <div class="hero-slide-content">
-        <span class="hero-badge">New Arrivals</span>
-        <h2 class="hero-heading">Fresh Drops</h2>
-        <p class="hero-text">Discover the latest from top brands in Islington.</p>
-        <a href="{% url 'product_list' %}" class="hero-cta">Explore</a>
-      </div>
-    </div>
-    <div class="hero-slide" data-index="2">
-      <div class="hero-slide-bg hero-slide-bg--3"></div>
-      <div class="hero-slide-overlay"></div>
-      <div class="hero-slide-content">
-        <span class="hero-badge">Best Sellers</span>
-        <h2 class="hero-heading">Trending Now</h2>
-        <p class="hero-text">Most loved products this month, handpicked for you.</p>
-        <a href="{% url 'product_list' %}" class="hero-cta">Browse</a>
-      </div>
-    </div>
-    <div class="hero-slide" data-index="3">
-      <div class="hero-slide-bg hero-slide-bg--4"></div>
-      <div class="hero-slide-overlay"></div>
-      <div class="hero-slide-content">
-        <span class="hero-badge">Free Delivery</span>
-        <h2 class="hero-heading">Free Shipping</h2>
-        <p class="hero-text">On orders over Rs. 999. Limited time offer.</p>
-        <a href="{% url 'deals' %}" class="hero-cta">View Deals</a>
-      </div>
-    </div>
-  </div>
+  </section>
 
-  <button class="hero-arrow hero-arrow-prev" id="heroArrowPrev" aria-label="Previous slide">
-    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-    </svg>
-  </button>
-  <button class="hero-arrow hero-arrow-next" id="heroArrowNext" aria-label="Next slide">
-    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-    </svg>
-  </button>
+  {% if categories %}
+  <section class="category-section">
+    <div class="category-header">
+      <h2 class="category-title">Browse by Category</h2>
+      <div class="category-nav">
+        <button class="category-nav-btn category-prev" aria-label="Scroll left">&#10094;</button>
+        <button class="category-nav-btn category-next" aria-label="Scroll right">&#10095;</button>
+      </div>
+    </div>
+    <div class="category-slider-wrap">
+      <div class="category-slider">
+        <a href="{% url 'home' %}" class="category-card{% if not selected_category %} active{% endif %}">
+          <div class="category-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-accent)">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </div>
+          <span class="category-name">All</span>
+        </a>
+        {% for cat in categories %}
+        <a href="{% url 'home' %}?category={{ cat.name|urlencode }}" class="category-card{% if selected_category == cat.name %} active{% endif %}">
+          <div class="category-icon">
+            {% if cat.inline_icon %}
+              <img src="{{ cat.inline_icon }}" alt="{{ cat.name }}">
+            {% else %}
+              <span class="category-icon-placeholder">{{ cat.name|truncatechars:1 }}</span>
+            {% endif %}
+          </div>
+          <span class="category-name">{{ cat.name }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
 
-  <div class="hero-dots" id="heroDots"></div>
-</section>
+  {% if products %}
+  <section class="home-products-section">
+    <div class="home-products-header">
+      <h2 class="home-products-title">Featured Products</h2>
+      <div class="home-products-actions">
+        <button class="home-products-carousel-btn home-products-prev" aria-label="Previous">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="home-products-carousel-btn home-products-next" aria-label="Next">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+        <a href="{% url 'product_list' %}" class="home-products-view-all">View All</a>
+      </div>
+    </div>
+    <div class="home-products-carousel-wrap">
+      <div class="home-products-grid" data-product-carousel>
+        {% for product in products %}
+        <article class="product-card">
+          <a href="{% url 'product_detail' product.id %}" class="product-card-image-link">
+            <div class="product-card-image-wrap">
+              {% if product.image %}
+                <img class="product-card-image" src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <div class="product-card-image-placeholder">{{ product.name|first|upper }}</div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="product-card-body">
+            {% if product.category %}
+              <span class="product-card-category">{{ product.category.name }}</span>
+            {% endif %}
+            <h3 class="product-card-name">{{ product.name }}</h3>
+            <p class="product-card-desc">{{ product.description|truncatewords:12 }}</p>
+            <div class="product-card-footer">
+              <span class="product-card-price">Rs. {{ product.price }}</span>
+              <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View More</a>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if newest_products %}
+  <section class="home-products-section">
+    <div class="home-products-header">
+      <h2 class="home-products-title">Newest Added</h2>
+      <div class="home-products-actions">
+        <button class="home-products-carousel-btn newest-prev" aria-label="Previous">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="home-products-carousel-btn newest-next" aria-label="Next">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+        <a href="{% url 'product_list' %}" class="home-products-view-all">View All</a>
+      </div>
+    </div>
+    <div class="home-products-carousel-wrap">
+      <div class="home-products-grid" data-product-carousel>
+        {% for product in newest_products %}
+        <article class="product-card">
+          <a href="{% url 'product_detail' product.id %}" class="product-card-image-link">
+            <div class="product-card-image-wrap">
+              {% if product.image %}
+                <img class="product-card-image" src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <div class="product-card-image-placeholder">{{ product.name|first|upper }}</div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="product-card-body">
+            {% if product.category %}
+              <span class="product-card-category">{{ product.category.name }}</span>
+            {% endif %}
+            <h3 class="product-card-name">{{ product.name }}</h3>
+            <p class="product-card-desc">{{ product.description|truncatewords:12 }}</p>
+            <div class="product-card-footer">
+              <span class="product-card-price">Rs. {{ product.price }}</span>
+              <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View More</a>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if banner_ads %}
+  <section class="ad-banner-section" data-banner-carousel>
+    <div class="ad-banner-track">
+      {% for ad in banner_ads %}
+      <div class="ad-banner-slide{% if forloop.first %} active{% endif %}">
+        {% if ad.link %}
+          <a href="{{ ad.link }}" target="_blank" rel="noopener noreferrer">
+            <img src="{{ ad.inline_image }}" alt="{{ ad.title }}" class="ad-banner-image">
+          </a>
+        {% else %}
+          <img src="{{ ad.inline_image }}" alt="{{ ad.title }}" class="ad-banner-image">
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if budget_products %}
+  <section class="home-products-section">
+    <div class="home-products-header">
+      <h2 class="home-products-title">Budget Finds</h2>
+      <div class="home-products-actions">
+        <button class="home-products-carousel-btn budget-prev" aria-label="Previous">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="home-products-carousel-btn budget-next" aria-label="Next">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+        <a href="{% url 'product_list' %}" class="home-products-view-all">View All</a>
+      </div>
+    </div>
+    <div class="home-products-carousel-wrap">
+      <div class="home-products-grid" data-product-carousel>
+        {% for product in budget_products %}
+        <article class="product-card">
+          <a href="{% url 'product_detail' product.id %}" class="product-card-image-link">
+            <div class="product-card-image-wrap">
+              {% if product.image %}
+                <img class="product-card-image" src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <div class="product-card-image-placeholder">{{ product.name|first|upper }}</div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="product-card-body">
+            {% if product.category %}
+              <span class="product-card-category">{{ product.category.name }}</span>
+            {% endif %}
+            <h3 class="product-card-name">{{ product.name }}</h3>
+            <p class="product-card-desc">{{ product.description|truncatewords:12 }}</p>
+            <div class="product-card-footer">
+              <span class="product-card-price">Rs. {{ product.price }}</span>
+              <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View More</a>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if card_ads %}
+  <section class="card-ads-section">
+    <div class="card-ads-header">
+      <h2 class="card-ads-title">Special Offers</h2>
+      <p class="card-ads-desc">Don't miss out on these exclusive deals</p>
+    </div>
+    <div class="card-ads-grid">
+      {% for ad in card_ads %}
+      <div class="card-ad-card">
+        <div class="card-ad-image-wrap">
+          {% if ad.inline_image %}
+            <img src="{{ ad.inline_image }}" alt="{{ ad.title }}" class="card-ad-image">
+          {% else %}
+            <div class="card-ad-image-placeholder">{{ ad.title|first|upper }}</div>
+          {% endif %}
+          {% if ad.has_discount %}
+            <span class="card-ad-badge">Sale</span>
+          {% endif %}
+        </div>
+        <div class="card-ad-body">
+          <h3 class="card-ad-name">{{ ad.title }}</h3>
+          {% if ad.description %}
+            <p class="card-ad-desc">{{ ad.description }}</p>
+          {% endif %}
+          <div class="card-ad-pricing">
+            {% if ad.has_discount %}
+              <span class="card-ad-price-original">Rs. {{ ad.price }}</span>
+              <span class="card-ad-price-discount">Rs. {{ ad.discount_price }}</span>
+            {% else %}
+              <span class="card-ad-price">Rs. {{ ad.price }}</span>
+            {% endif %}
+          </div>
+          {% if ad.link %}
+            <a href="{{ ad.link }}" class="card-ad-btn" target="_blank" rel="noopener noreferrer">Shop Now</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if blogs %}
+  <section class="blog-section">
+    <div class="blog-header">
+      <h2 class="blog-title">Latest Blogs</h2>
+      <p class="blog-desc">Stay updated with our latest stories and tips</p>
+    </div>
+    <div class="blog-grid">
+      {% for blog in blogs %}
+      <a href="{% url 'blog_detail' blog.id %}" class="blog-card">
+        <div class="blog-card-image-wrap">
+          {% if blog.inline_image %}
+            <img src="{{ blog.inline_image }}" alt="{{ blog.title }}" class="blog-card-image">
+          {% else %}
+            <div class="blog-card-image-placeholder">{{ blog.title|first }}</div>
+          {% endif %}
+        </div>
+        <div class="blog-card-body">
+          <span class="blog-card-topic">{{ blog.topic }}</span>
+          <h3 class="blog-card-name">{{ blog.title }}</h3>
+          <p class="blog-card-desc">{{ blog.short_description }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 {% endblock %}

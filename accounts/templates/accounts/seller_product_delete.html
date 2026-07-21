@@ -1,0 +1,32 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Delete Product | Islington Marketplace{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/seller.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="seller-form-page">
+  <div class="seller-form-container seller-delete-container">
+    <div class="seller-form-header">
+      <a href="{% url 'seller_dashboard' %}" class="seller-form-back">&larr; Back to Dashboard</a>
+      <h1 class="seller-form-title">Delete Product</h1>
+    </div>
+
+    <div class="seller-delete-body">
+      <p>Are you sure you want to delete <strong>{{ product.name }}</strong>?</p>
+      <p class="seller-delete-warning">This action cannot be undone.</p>
+
+      <div class="seller-delete-actions">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="seller-btn-delete-confirm">Yes, Delete</button>
+        </form>
+        <a href="{% url 'seller_dashboard' %}" class="seller-btn-cancel">Cancel</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

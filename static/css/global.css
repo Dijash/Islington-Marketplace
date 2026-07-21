@@ -14,13 +14,18 @@
   --color-accent: var(--blue-500);
   --color-accent-dark: var(--blue-600);
 
-  --bg-main: #ffffff;
-  --bg-surface: #ffffff;
-  --bg-input: var(--blue-50);
-  --bg-input-hover: var(--blue-100);
+  --bg-main: #e9eff8;
+  --bg-surface: #f3f7ff;
+  --bg-card: #ffffff;
+  --bg-input: #e2ebf9;
+  --bg-input-hover: #d6e3f7;
+
+  --border-soft: #c7d6ef;
+  --border-strong: #a9bfdf;
+  --surface-tint: #edf3ff;
 
   --text-main: var(--blue-950);
-  --text-muted: var(--blue-400);
+  --text-muted: #4a6285;
 
   --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.08);
   --shadow-scrolled: 0 4px 20px rgba(0, 0, 0, 0.12);
@@ -30,13 +35,18 @@
 }
 
 .dark-mode {
-  --bg-main: #0f172a;
-  --bg-surface: #1e293b;
-  --bg-input: #1e293b;
-  --bg-input-hover: #334155;
+  --bg-main: #121a26;
+  --bg-surface: #1a2636;
+  --bg-card: #1e2d40;
+  --bg-input: #243449;
+  --bg-input-hover: #2d425d;
 
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
+  --border-soft: #31465f;
+  --border-strong: #3f5a7a;
+  --surface-tint: #1f2f44;
+
+  --text-main: #e8eef8;
+  --text-muted: #b2c0d6;
 
   --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.4);
   --shadow-scrolled: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -54,6 +64,9 @@ body {
     color: var(--text-main);
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 

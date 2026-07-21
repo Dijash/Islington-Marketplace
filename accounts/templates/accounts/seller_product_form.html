@@ -1,0 +1,71 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Product | Islington Marketplace{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/seller.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="seller-form-page">
+  <div class="seller-form-container">
+    <div class="seller-form-header">
+      <a href="{% url 'seller_dashboard' %}" class="seller-form-back">&larr; Back to Dashboard</a>
+      <h1 class="seller-form-title">{{ action }} Product</h1>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="seller-product-form">
+      {% csrf_token %}
+
+      {% if form.errors %}
+        <div class="seller-form-errors">
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="seller-form-group">
+        <label for="id_name" class="seller-form-label">Product Name</label>
+        {{ form.name }}
+      </div>
+
+      <div class="seller-form-group">
+        <label for="id_description" class="seller-form-label">Description</label>
+        {{ form.description }}
+      </div>
+
+      <div class="seller-form-row">
+        <div class="seller-form-group">
+          <label for="id_price" class="seller-form-label">Price ($)</label>
+          {{ form.price }}
+        </div>
+        <div class="seller-form-group">
+          <label for="id_category" class="seller-form-label">Category</label>
+          {{ form.category }}
+        </div>
+      </div>
+
+      <div class="seller-form-group">
+        <label for="id_image" class="seller-form-label">Product Image</label>
+        {{ form.image }}
+        {% if product and product.image %}
+          <div class="seller-form-current-image">
+            <img src="{{ product.image.url }}" alt="Current image">
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="seller-form-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Your product will be reviewed by an admin before it appears on the site.</span>
+      </div>
+
+      <button type="submit" class="seller-form-submit">{{ action }} Product</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

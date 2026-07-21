@@ -1,47 +1,176 @@
+import base64
+import mimetypes
+from pathlib import Path
+
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .models import Product, Category, Profile
+from accounts.models import Seller, Customer
+from Product.models import Product, Category
+from .models import Ad, SideAd, BannerAd, CardAd
+from blog.models import Blog
+
 
 def home(request):
-    return render(request, 'core/home.html')
+    selected_category = request.GET.get('category', '').strip()
 
-def product_list(request):
-    products = Product.objects.all()
+    base_products = Product.objects.select_related('category').filter(is_approved=True)
     categories = Category.objects.all()
-    return render(request, 'core/product_list.html', {
+
+    for cat in categories:
+        cat.inline_icon = None
+        if not cat.icon:
+            continue
+
+        image_path = Path(settings.MEDIA_ROOT) / cat.icon.name
+        if not image_path.exists():
+            continue
+
+        mime_type, _ = mimetypes.guess_type(str(image_path))
+        if not mime_type:
+            mime_type = 'image/jpeg'
+
+        try:
+            encoded = base64.b64encode(image_path.read_bytes()).decode('ascii')
+        except OSError:
+            continue
+
+        cat.inline_icon = f"data:{mime_type};base64,{encoded}"
+
+    if selected_category:
+        base_products = base_products.filter(category__name=selected_category)
+
+    products = base_products.order_by('?')[:8]
+    newest_products = base_products.order_by('-created_at')[:8]
+    budget_products = base_products.order_by('price')[:8]
+    ads = list(Ad.objects.filter(is_active=True).exclude(image=''))
+
+    for ad in ads:
+        ad.inline_image = None
+        if not ad.image:
+            continue
+
+        image_path = Path(settings.MEDIA_ROOT) / ad.image.name
+        if not image_path.exists():
+            continue
+
+        mime_type, _ = mimetypes.guess_type(str(image_path))
+        if not mime_type:
+            mime_type = 'image/jpeg'
+
+        try:
+            encoded = base64.b64encode(image_path.read_bytes()).decode('ascii')
+        except OSError:
+            continue
+
+        ad.inline_image = f"data:{mime_type};base64,{encoded}"
+
+    side_ads = list(SideAd.objects.filter(is_active=True).exclude(image=''))
+
+    for ad in side_ads:
+        ad.inline_image = None
+        if not ad.image:
+            continue
+
+        image_path = Path(settings.MEDIA_ROOT) / ad.image.name
+        if not image_path.exists():
+            continue
+
+        mime_type, _ = mimetypes.guess_type(str(image_path))
+        if not mime_type:
+            mime_type = 'image/jpeg'
+
+        try:
+            encoded = base64.b64encode(image_path.read_bytes()).decode('ascii')
+        except OSError:
+            continue
+
+        ad.inline_image = f"data:{mime_type};base64,{encoded}"
+
+    banner_ads = list(BannerAd.objects.filter(is_active=True).exclude(image=''))
+
+    for ad in banner_ads:
+        ad.inline_image = None
+        if not ad.image:
+            continue
+
+        image_path = Path(settings.MEDIA_ROOT) / ad.image.name
+        if not image_path.exists():
+            continue
+
+        mime_type, _ = mimetypes.guess_type(str(image_path))
+        if not mime_type:
+            mime_type = 'image/jpeg'
+
+        try:
+            encoded = base64.b64encode(image_path.read_bytes()).decode('ascii')
+        except OSError:
+            continue
+
+        ad.inline_image = f"data:{mime_type};base64,{encoded}"
+
+    card_ads = list(CardAd.objects.filter(is_active=True).exclude(image='')[:3])
+
+    for ad in card_ads:
+        ad.inline_image = None
+        if not ad.image:
+            continue
+
+        image_path = Path(settings.MEDIA_ROOT) / ad.image.name
+        if not image_path.exists():
+            continue
+
+        mime_type, _ = mimetypes.guess_type(str(image_path))
+        if not mime_type:
+            mime_type = 'image/jpeg'
+
+        try:
+            encoded = base64.b64encode(image_path.read_bytes()).decode('ascii')
+        except OSError:
+            continue
+
+        ad.inline_image = f"data:{mime_type};base64,{encoded}"
+
+    blogs = list(Blog.objects.filter(is_active=True).exclude(image='')[:3])
+
+    for blog in blogs:
+        blog.inline_image = None
+        if not blog.image:
+            continue
+
+        image_path = Path(settings.MEDIA_ROOT) / blog.image.name
+        if not image_path.exists():
+            continue
+
+        mime_type, _ = mimetypes.guess_type(str(image_path))
+        if not mime_type:
+            mime_type = 'image/jpeg'
+
+        try:
+            encoded = base64.b64encode(image_path.read_bytes()).decode('ascii')
+        except OSError:
+            continue
+
+        blog.inline_image = f"data:{mime_type};base64,{encoded}"
+
+    return render(request, 'core/home.html', {
         'products': products,
+        'newest_products': newest_products,
+        'budget_products': budget_products,
+        'ads': ads,
+        'side_ads': side_ads,
+        'banner_ads': banner_ads,
+        'card_ads': card_ads,
+        'blogs': blogs,
         'categories': categories,
+        'selected_category': selected_category,
     })
 
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    return render(request, 'core/product_detail.html', {
-        'product': product,
-    })
-
-def category_list(request):
-    categories = Category.objects.all()
-    return render(request, 'core/category_list.html', {
-        'categories': categories,
-    })
 
 def deals(request):
-    products = Product.objects.filter(status='available')
-    return render(request, 'core/deals.html', {
-        'products': products,
-    })
+    return render(request, 'core/deals.html')
 
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('home')
-        return render(request, 'core/login.html', {'error': 'Invalid username or password.'})
-    return render(request, 'core/login.html')
 
 def register_view(request):
     if request.method == 'POST':
@@ -50,7 +179,7 @@ def register_view(request):
         password = request.POST['password']
         confirm = request.POST['confirm_password']
         user_type = request.POST.get('user_type', 'customer')
-        shop_name = request.POST.get('shop_name', '') if user_type == 'seller' else ''
+        shop_name = request.POST.get('shop_name', '')
         phone = request.POST.get('phone', '')
         image = request.FILES.get('image')
 
@@ -72,6 +201,8 @@ def register_view(request):
             errors.append('Passwords do not match.')
         if len(password) < 6:
             errors.append('Password must be at least 6 characters.')
+        if user_type == 'seller' and not shop_name.strip():
+            errors.append('Business name is required for sellers.')
 
         if errors:
             return render(request, 'core/register.html', {
@@ -86,18 +217,38 @@ def register_view(request):
             first_name=first_name,
             last_name=last_name,
         )
-        Profile.objects.create(
-            user=user,
-            user_type=user_type,
-            phone=phone,
-            image=image,
-            shop_name=shop_name,
-        )
+
+        if user_type == 'seller':
+            Seller.objects.create(
+                user=user,
+                phone=phone,
+                image=image,
+                shop_name=shop_name,
+            )
+        else:
+            Customer.objects.create(
+                user=user,
+                phone=phone,
+                image=image,
+            )
 
         login(request, user)
         return redirect('home')
 
     return render(request, 'core/register.html')
+
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        return render(request, 'core/login.html', {'error': 'Invalid username or password.'})
+    return render(request, 'core/login.html')
+
 
 def logout_view(request):
     logout(request)

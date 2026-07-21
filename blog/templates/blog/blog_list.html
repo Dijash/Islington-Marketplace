@@ -1,0 +1,52 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Blogs | Islington Marketplace{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/components/blog-card.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/blog_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="blog-list-page">
+  <div class="blog-list-header">
+    <h1 class="blog-list-title">Our Blog</h1>
+    <p class="blog-list-desc">Stay updated with the latest stories, tips, and news</p>
+  </div>
+
+  <div class="blog-list-main">
+    <p class="products-count">{{ blogs|length }} blog{{ blogs|length|pluralize }} found</p>
+
+    {% if blogs %}
+    <div class="blog-list-grid">
+      {% for blog in blogs %}
+      <a href="{% url 'blog_detail' blog.id %}" class="blog-card">
+        <div class="blog-card-image-wrap">
+          {% if blog.inline_image %}
+            <img src="{{ blog.inline_image }}" alt="{{ blog.title }}" class="blog-card-image" loading="lazy">
+          {% else %}
+            <div class="blog-card-image-placeholder">{{ blog.title|first }}</div>
+          {% endif %}
+        </div>
+        <div class="blog-card-body">
+          <span class="blog-card-topic">{{ blog.topic }}</span>
+          <h3 class="blog-card-name">{{ blog.title }}</h3>
+          <p class="blog-card-desc">{{ blog.short_description }}</p>
+          <span class="blog-card-date">{{ blog.created_at|date:"F d, Y" }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="blog-list-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+      </svg>
+      <p>No blog posts found.</p>
+      <a href="{% url 'blog_list' %}" class="products-empty-link">View all blogs</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,17 +1,34 @@
 from django.contrib import admin
-from .models import Category, Product
+from .models import Ad, SideAd, BannerAd, CardAd
 
-class CategoryAdmin(admin.ModelAdmin):
-    exclude = ('description',)
-    list_display = ('id','name', 'description')
-    search_fields = ('name',)
-    
-class ProductAdmin(admin.ModelAdmin):
-    exclude = ('created_at', 'updated_at')
-    list_display = ('id', 'name', 'stock', 'status', 'price', 'category', 'created_at', 'updated_at')
-    list_filter = ('status', 'category')
-    search_fields = ('name', 'description')
-    ordering = ('-created_at',)
 
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Product, ProductAdmin)
+@admin.register(Ad)
+class AdAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'is_active', 'order', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('title',)
+    list_editable = ('is_active', 'order')
+
+
+@admin.register(SideAd)
+class SideAdAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'is_active', 'order', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('title',)
+    list_editable = ('is_active', 'order')
+
+
+@admin.register(BannerAd)
+class BannerAdAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'is_active', 'order', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('title',)
+    list_editable = ('is_active', 'order')
+
+
+@admin.register(CardAd)
+class CardAdAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'price', 'discount_price', 'is_active', 'order', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('title',)
+    list_editable = ('is_active', 'order')
