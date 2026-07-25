@@ -12,7 +12,6 @@ class Blog(models.Model):
 
     class Meta:
         ordering = ['order', '-created_at']
-        db_table = 'core_blog'
 
     def __str__(self):
         return self.title

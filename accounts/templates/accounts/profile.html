@@ -1,0 +1,368 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}My Profile | Islington Marketplace{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/seller.css' %}">
+  <style>
+    .profile-page {
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 0 24px;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--color-accent);
+      flex-shrink: 0;
+    }
+
+    .profile-avatar-placeholder {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: var(--surface-tint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--color-accent);
+      border: 3px solid var(--color-accent);
+      flex-shrink: 0;
+    }
+
+    .profile-info h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 0 0 4px 0;
+      letter-spacing: -0.02em;
+    }
+
+    .profile-info p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .profile-role-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    .profile-role-seller {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .dark-mode .profile-role-seller {
+      background: #1e3a5f;
+      color: #93c5fd;
+    }
+
+    .profile-role-customer {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .dark-mode .profile-role-customer {
+      background: #14532d;
+      color: #86efac;
+    }
+
+    .profile-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 2rem;
+    }
+
+    .dark-mode .profile-card {
+      border-color: var(--border-strong);
+    }
+
+    .profile-section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0 0 1.25rem 0;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .dark-mode .profile-section-title {
+      border-bottom-color: var(--border-strong);
+    }
+
+    .profile-avatar-upload {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-avatar-preview {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border-soft);
+    }
+
+    .profile-avatar-upload-info {
+      flex: 1;
+    }
+
+    .profile-avatar-upload-info .form-file {
+      display: block;
+    }
+
+    .profile-avatar-upload-info small {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .profile-form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 1.5rem;
+    }
+
+    .profile-btn-save {
+      padding: 0.75rem 2rem;
+      background: var(--color-accent);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .profile-btn-save:hover {
+      background: var(--color-accent-dark);
+    }
+
+    .profile-btn-cancel {
+      padding: 0.75rem 2rem;
+      background: var(--bg-input);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background var(--transition-fast);
+    }
+
+    .profile-btn-cancel:hover {
+      background: var(--border-soft);
+    }
+
+    .profile-success {
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      color: #166534;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .dark-mode .profile-success {
+      background: #14532d;
+      border-color: #166534;
+      color: #86efac;
+    }
+
+    @media (max-width: 600px) {
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .profile-form-actions {
+        flex-direction: column;
+      }
+
+      .profile-btn-save,
+      .profile-btn-cancel {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+  <div class="profile-header">
+    {% if profile.image and profile.image.name %}
+      <img src="{{ profile.image.url }}" alt="{{ user.username }}" class="profile-avatar">
+    {% else %}
+      <div class="profile-avatar-placeholder">{{ user.first_name|first|upper|default:user.username|first|upper }}</div>
+    {% endif %}
+    <div class="profile-info">
+      <h1>{{ user.get_full_name|default:user.username }}</h1>
+      <p>{{ user.email }}</p>
+      {% if user_type == 'seller' %}
+        <span class="profile-role-badge profile-role-seller">Seller</span>
+      {% else %}
+        <span class="profile-role-badge profile-role-customer">Customer</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="profile-success">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="profile-card">
+    <h2 class="profile-section-title">Edit Profile</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="seller-form-errors">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="profile-avatar-upload">
+        {% if profile.image and profile.image.name %}
+          <img src="{{ profile.image.url }}" alt="" class="profile-avatar-preview" id="avatarPreview">
+        {% else %}
+          <div class="profile-avatar-placeholder" style="width:72px;height:72px;font-size:1.5rem;" id="avatarPlaceholder">{{ user.first_name|first|upper|default:user.username|first|upper }}</div>
+          <img src="" alt="" class="profile-avatar-preview" id="avatarPreview" style="display:none;">
+        {% endif %}
+        <div class="profile-avatar-upload-info">
+          <label class="seller-form-label">Profile Photo</label>
+          {{ form.image }}
+          {% if profile.image and profile.image.name %}
+            <small>Current: {{ profile.image.name }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="seller-form-row">
+        <div class="seller-form-group">
+          <label class="seller-form-label">First Name</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+            <div class="seller-form-errors" style="margin-top:6px;padding:8px 12px;">{{ form.first_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="seller-form-group">
+          <label class="seller-form-label">Last Name</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+            <div class="seller-form-errors" style="margin-top:6px;padding:8px 12px;">{{ form.last_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="seller-form-group">
+        <label class="seller-form-label">Email Address</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <div class="seller-form-errors" style="margin-top:6px;padding:8px 12px;">{{ form.email.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="seller-form-group">
+        <label class="seller-form-label">Phone Number</label>
+        {{ form.phone }}
+        {% if form.phone.errors %}
+          <div class="seller-form-errors" style="margin-top:6px;padding:8px 12px;">{{ form.phone.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      {% if user_type == 'seller' %}
+        <div class="seller-form-group">
+          <label class="seller-form-label">Shop Name</label>
+          {{ form.shop_name }}
+          {% if form.shop_name.errors %}
+            <div class="seller-form-errors" style="margin-top:6px;padding:8px 12px;">{{ form.shop_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="seller-form-group">
+          <label class="seller-form-label">Shop Description</label>
+          {{ form.shop_description }}
+          {% if form.shop_description.errors %}
+            <div class="seller-form-errors" style="margin-top:6px;padding:8px 12px;">{{ form.shop_description.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="seller-form-group">
+          <label class="seller-form-label">PAN Number</label>
+          {{ form.pan_number }}
+          {% if form.pan_number.errors %}
+            <div class="seller-form-errors" style="margin-top:6px;padding:8px 12px;">{{ form.pan_number.errors.0 }}</div>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="seller-form-group">
+          <label class="seller-form-label">Address</label>
+          {{ form.address }}
+          {% if form.address.errors %}
+            <div class="seller-form-errors" style="margin-top:6px;padding:8px 12px;">{{ form.address.errors.0 }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="profile-form-actions">
+        <button type="submit" class="profile-btn-save">Save Changes</button>
+        <a href="{% url 'home' %}" class="profile-btn-cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('#id_image');
+    const preview = document.getElementById('avatarPreview');
+    const placeholder = document.getElementById('avatarPlaceholder');
+    if (fileInput) {
+      fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            preview.src = ev.target.result;
+            preview.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

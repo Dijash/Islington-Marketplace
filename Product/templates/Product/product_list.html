@@ -21,42 +21,185 @@
     <p class="products-page-desc">Browse our full catalog of items from local sellers</p>
   </div>
 
-  <div class="products-main">
-    <p class="products-count">{{ products|length }} product{{ products|length|pluralize }} found</p>
+  <div class="products-layout">
+    <aside class="filter-sidebar">
+      <form method="get" class="filter-form" id="filterForm">
+        {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
 
-    {% if products %}
-    <div class="home-products-grid">
-      {% for product in products %}
-      <article class="product-card">
-        <a href="{% url 'product_detail' product.id %}" class="product-card-image-link">
-          <div class="product-card-image-wrap">
-            {% if product.image %}
-              <img class="product-card-image" src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-            {% else %}
-              <div class="product-card-image-placeholder">{{ product.name|first|upper }}</div>
-            {% endif %}
-          </div>
-        </a>
-        <div class="product-card-body">
-          {% if product.category %}
-            <span class="product-card-category">{{ product.category.name }}</span>
-          {% endif %}
-          <h3 class="product-card-name">{{ product.name }}</h3>
-          <p class="product-card-desc">{{ product.description|truncatewords:12 }}</p>
-          <div class="product-card-footer">
-            <span class="product-card-price">Rs. {{ product.price }}</span>
-            <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View More</a>
+        <div class="filter-section">
+          <h3 class="filter-section-title">Categories</h3>
+          <ul class="filter-category-list">
+            <li>
+              <label class="filter-option">
+                <input type="radio" name="category" value="" {% if not selected_category %}checked{% endif %} onchange="this.form.submit()">
+                <span class="filter-option-text">All Categories</span>
+              </label>
+            </li>
+            {% for cat in categories %}
+            <li>
+              <label class="filter-option">
+                <input type="radio" name="category" value="{{ cat.name }}" {% if selected_category == cat.name %}checked{% endif %} onchange="this.form.submit()">
+                <span class="filter-option-text">{{ cat.name }}</span>
+              </label>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="filter-section">
+          <h3 class="filter-section-title">Price Range</h3>
+          <div class="filter-price-range">
+            <div class="filter-price-inputs">
+              <div class="filter-price-field">
+                <label for="minPrice">Min</label>
+                <input type="number" id="minPrice" name="min_price" value="{{ min_price }}" min="{{ slider_min }}" max="{{ slider_max }}" step="1">
+              </div>
+              <span class="filter-price-separator">-</span>
+              <div class="filter-price-field">
+                <label for="maxPrice">Max</label>
+                <input type="number" id="maxPrice" name="max_price" value="{{ max_price }}" min="{{ slider_min }}" max="{{ slider_max }}" step="1">
+              </div>
+            </div>
+            <div class="filter-slider-wrap">
+              <input type="range" class="filter-slider filter-slider-min" id="sliderMin" min="{{ slider_min }}" max="{{ slider_max }}" value="{{ min_price }}" step="1">
+              <input type="range" class="filter-slider filter-slider-max" id="sliderMax" min="{{ slider_min }}" max="{{ slider_max }}" value="{{ max_price }}" step="1">
+              <div class="filter-slider-track">
+                <div class="filter-slider-fill" id="sliderFill"></div>
+              </div>
+            </div>
           </div>
         </div>
-      </article>
-      {% endfor %}
+
+        <button type="submit" class="filter-apply-btn">Apply Filters</button>
+        <a href="{% url 'product_list' %}{% if search_query %}?q={{ search_query }}{% endif %}" class="filter-clear-btn">Clear All</a>
+      </form>
+    </aside>
+
+    <div class="products-content">
+      <p class="products-count">{{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }} found</p>
+
+      {% if page_obj %}
+      <div class="home-products-grid">
+        {% for product in page_obj %}
+        <article class="product-card">
+          <a href="{% url 'product_detail' product.id %}" class="product-card-image-link">
+            <div class="product-card-image-wrap">
+              {% if product.image %}
+                <img class="product-card-image" src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <div class="product-card-image-placeholder">{{ product.name|first|upper }}</div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="product-card-body">
+            {% if product.category %}
+              <span class="product-card-category">{{ product.category.name }}</span>
+            {% endif %}
+            <h3 class="product-card-name">{{ product.name }}</h3>
+            <p class="product-card-desc">{{ product.description|truncatewords:12 }}</p>
+            <div class="product-card-footer">
+              <span class="product-card-price">Rs. {{ product.price }}</span>
+              <div class="product-card-actions">
+                <button class="product-card-cart-btn add-to-cart-btn{% if product.id|stringformat:'d' in cart_product_ids %} added{% endif %}" data-product-id="{{ product.id }}" aria-label="Add to cart">
+                  {% if product.id|stringformat:'d' in cart_product_ids %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Added
+                  {% else %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                    Add
+                  {% endif %}
+                </button>
+                <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View</a>
+              </div>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      {% if page_obj.has_other_pages %}
+      <nav class="pagination" aria-label="Product pages">
+        {% if page_obj.has_previous %}
+          <a class="pagination-btn pagination-prev" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}">
+            &laquo; Previous
+          </a>
+        {% endif %}
+
+        <div class="pagination-pages">
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <span class="pagination-btn pagination-current">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <a class="pagination-btn" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}">{{ num }}</a>
+            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+              <a class="pagination-btn" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}">{{ num }}</a>
+            {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+              <span class="pagination-ellipsis">&hellip;</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        {% if page_obj.has_next %}
+          <a class="pagination-btn pagination-next" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}">
+            Next &raquo;
+          </a>
+        {% endif %}
+      </nav>
+      {% endif %}
+
+      {% else %}
+      <div class="products-empty">
+        <p>No products found. Try a different search or category.</p>
+        <a href="{% url 'product_list' %}" class="products-empty-link">View all products</a>
+      </div>
+      {% endif %}
     </div>
-    {% else %}
-    <div class="products-empty">
-      <p>No products found. Try a different search or category.</p>
-      <a href="{% url 'product_list' %}" class="products-empty-link">View all products</a>
-    </div>
-    {% endif %}
   </div>
 </section>
+
+<script>
+(function() {
+  const sliderMin = document.getElementById('sliderMin');
+  const sliderMax = document.getElementById('sliderMax');
+  const inputMin = document.getElementById('minPrice');
+  const inputMax = document.getElementById('maxPrice');
+  const fill = document.getElementById('sliderFill');
+  const minVal = parseInt(sliderMin.min);
+  const maxVal = parseInt(sliderMin.max);
+
+  function updateFill() {
+    const low = ((sliderMin.value - minVal) / (maxVal - minVal)) * 100;
+    const high = ((sliderMax.value - minVal) / (maxVal - minVal)) * 100;
+    fill.style.left = low + '%';
+    fill.style.width = (high - low) + '%';
+  }
+
+  function syncFromSliders() {
+    if (parseInt(sliderMin.value) > parseInt(sliderMax.value)) {
+      sliderMin.value = sliderMax.value;
+    }
+    inputMin.value = sliderMin.value;
+    inputMax.value = sliderMax.value;
+    updateFill();
+  }
+
+  function syncFromInputs() {
+    let min = parseInt(inputMin.value) || minVal;
+    let max = parseInt(inputMax.value) || maxVal;
+    if (min < minVal) min = minVal;
+    if (max > maxVal) max = maxVal;
+    if (min > max) min = max;
+    sliderMin.value = min;
+    sliderMax.value = max;
+    updateFill();
+  }
+
+  sliderMin.addEventListener('input', syncFromSliders);
+  sliderMax.addEventListener('input', syncFromSliders);
+  inputMin.addEventListener('input', syncFromInputs);
+  inputMax.addEventListener('input', syncFromInputs);
+
+  updateFill();
+})();
+</script>
 {% endblock %}

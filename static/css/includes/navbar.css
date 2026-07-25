@@ -393,9 +393,300 @@
     font-weight: bold;
     font-size: 15px;
     transition: all var(--transition-fast);
+    position: relative;
+    border: none;
+    cursor: pointer;
 }
 .cart-btn:hover {
     background-color: var(--color-accent-dark);
+}
+
+/* ── Cart Count Badge ─────────────────────── */
+.cart-count-badge {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    line-height: 1;
+    border: 2px solid var(--bg-surface);
+}
+.cart-count-badge:empty,
+.cart-count-badge[data-count="0"] {
+    display: none;
+}
+
+/* ── Cart Dropdown ────────────────────────── */
+.nav-cart-dropdown {
+    position: relative;
+}
+
+.cart-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 340px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    box-shadow: var(--shadow-float);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: opacity var(--transition-fast), visibility var(--transition-fast), transform var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    max-height: 420px;
+}
+
+.dark-mode .cart-dropdown-panel {
+    border-color: var(--border-strong);
+}
+
+.nav-cart-dropdown:hover .cart-dropdown-panel,
+.nav-cart-dropdown.open .cart-dropdown-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.cart-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border-soft);
+}
+.dark-mode .cart-dropdown-header {
+    border-bottom-color: var(--border-strong);
+}
+
+.cart-dropdown-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.cart-dropdown-count {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.cart-dropdown-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.cart-dropdown-empty {
+    padding: 32px 18px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.cart-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    transition: background var(--transition-fast);
+}
+.cart-dropdown-item:hover {
+    background: var(--bg-input);
+}
+
+.cart-dropdown-item-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--surface-tint);
+    flex-shrink: 0;
+}
+
+.cart-dropdown-item-img-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: var(--surface-tint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.cart-dropdown-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.cart-dropdown-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cart-dropdown-item-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.cart-dropdown-footer {
+    border-top: 1px solid var(--border-soft);
+    padding: 14px 18px;
+}
+.dark-mode .cart-dropdown-footer {
+    border-top-color: var(--border-strong);
+}
+
+.cart-dropdown-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* ── Cart Item Quantity Controls ─────────── */
+.cart-dropdown-item-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+
+.cart-dropdown-item-qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dark-mode .cart-dropdown-item-qty-controls {
+    border-color: var(--border-strong);
+}
+
+.cart-dropdown-item-qty-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--bg-input);
+    color: var(--text-main);
+    border: none;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.cart-dropdown-item-qty-btn:hover {
+    background: var(--color-accent);
+    color: #fff;
+}
+
+.cart-dropdown-item-qty-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.cart-dropdown-item-qty-btn:disabled:hover {
+    background: var(--bg-input);
+    color: var(--text-main);
+}
+
+.cart-dropdown-item-qty-value {
+    min-width: 30px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    background: var(--bg-surface);
+    height: 28px;
+    line-height: 28px;
+    border-left: 1px solid var(--border-soft);
+    border-right: 1px solid var(--border-soft);
+}
+
+.dark-mode .cart-dropdown-item-qty-value {
+    background: var(--bg-card);
+    border-color: var(--border-strong);
+}
+
+.cart-dropdown-item-remove {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast), background var(--transition-fast);
+    flex-shrink: 0;
+}
+.cart-dropdown-item-remove:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* ── Buy Now Button (in cart dropdown) ───── */
+.cart-dropdown-buy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background: var(--color-accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.cart-dropdown-buy-btn:hover {
+    background: var(--color-accent-dark);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+    .cart-dropdown-panel {
+        width: 290px;
+        right: -10px;
+    }
+    .cart-count-badge {
+        top: -4px;
+        right: -2px;
+    }
 }
 
 /* ── Hamburger Button ─────────────────────────────── */

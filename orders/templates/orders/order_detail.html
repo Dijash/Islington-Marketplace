@@ -1,0 +1,147 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.id }} | Islington Marketplace{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/seller.css' %}">
+  <style>
+    .order-detail-page { max-width: 800px; margin: 2rem auto; padding: 0 24px; }
+    .order-detail-back { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--color-accent); text-decoration: none; margin-bottom: 1.5rem; transition: color 0.2s; }
+    .order-detail-back:hover { color: var(--color-accent-dark); }
+    .order-detail-back svg { flex-shrink: 0; }
+    .order-detail-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 2rem; }
+    .order-detail-title { font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; }
+    .order-detail-card { background: var(--bg-surface); border: 1px solid var(--border-soft); border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
+    .order-detail-section-title { font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-soft); }
+    .order-detail-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .order-detail-info-item { font-size: 0.88rem; }
+    .order-detail-info-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+    .order-detail-info-value { color: var(--text-main); font-weight: 500; }
+    .order-detail-items { display: flex; flex-direction: column; gap: 12px; }
+    .order-detail-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface-tint); border-radius: 10px; }
+    .order-detail-item-img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+    .order-detail-item-img-placeholder { width: 52px; height: 52px; border-radius: 8px; background: var(--bg-surface); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--color-accent); font-size: 1.1rem; flex-shrink: 0; }
+    .order-detail-item-info { flex: 1; min-width: 0; }
+    .order-detail-item-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); margin-bottom: 2px; }
+    .order-detail-item-meta { font-size: 0.78rem; color: var(--text-muted); }
+    .order-detail-item-price { font-weight: 700; font-size: 0.9rem; color: var(--text-main); white-space: nowrap; }
+    .order-detail-totals { border-top: 1px solid var(--border-soft); padding-top: 1rem; margin-top: 1rem; }
+    .order-detail-total-row { display: flex; justify-content: space-between; font-size: 0.88rem; color: var(--text-muted); margin-bottom: 8px; }
+    .order-detail-total-row.order-detail-total-final { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0; }
+    .order-status-tracker { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; }
+    .order-status-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; position: relative; }
+    .order-status-step::after { content: ''; position: absolute; top: 14px; left: 50%; width: 100%; height: 2px; background: var(--border-soft); z-index: 0; }
+    .order-status-step:last-child::after { display: none; }
+    .order-status-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--border-soft); z-index: 1; transition: background 0.3s; }
+    .order-status-dot.active { background: var(--color-accent); }
+    .order-status-dot.active svg { color: #fff; }
+    .order-status-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-align: center; }
+    .order-status-label.active { color: var(--text-main); }
+    @media (max-width: 600px) {
+      .order-detail-info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<section class="order-detail-page">
+  <a href="{% url 'my_orders' %}" class="order-detail-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Back to Orders
+  </a>
+
+  <div class="order-detail-header">
+    <h1 class="order-detail-title">Order #{{ order.id }}</h1>
+    <span class="order-status-badge {{ order.get_status_badge_class }}">{{ order.get_status_display }}</span>
+  </div>
+
+  <div class="order-detail-card">
+    <h3 class="order-detail-section-title">Order Status</h3>
+    <div class="order-status-tracker">
+      <div class="order-status-step">
+        <div class="order-status-dot {% if order.status == 'placed' or order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <span class="order-status-label {% if order.status == 'placed' or order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}">Placed</span>
+      </div>
+      <div class="order-status-step">
+        <div class="order-status-dot {% if order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <span class="order-status-label {% if order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}">Shipped</span>
+      </div>
+      <div class="order-status-step">
+        <div class="order-status-dot {% if order.status == 'delivered' %}active{% endif %}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <span class="order-status-label {% if order.status == 'delivered' %}active{% endif %}">Delivered</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-detail-card">
+    <h3 class="order-detail-section-title">Items</h3>
+    <div class="order-detail-items">
+      {% for item in order.items.all %}
+      <div class="order-detail-item">
+        {% if item.product and item.product.image %}
+          <img class="order-detail-item-img" src="{{ item.product.image.url }}" alt="{{ item.product_name }}">
+        {% else %}
+          <div class="order-detail-item-img-placeholder">{{ item.product_name|first }}</div>
+        {% endif %}
+        <div class="order-detail-item-info">
+          <div class="order-detail-item-name">{{ item.product_name }}</div>
+          <div class="order-detail-item-meta">Qty: {{ item.quantity }} &middot; Rs. {{ item.product_price }} each</div>
+        </div>
+        <div class="order-detail-item-price">Rs. {{ item.line_total }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="order-detail-totals">
+      <div class="order-detail-total-row">
+        <span>Subtotal</span>
+        <span>Rs. {{ order.subtotal }}</span>
+      </div>
+      <div class="order-detail-total-row">
+        <span>Shipping</span>
+        <span>{% if order.shipping == 0 %}Free{% else %}Rs. {{ order.shipping }}{% endif %}</span>
+      </div>
+      <div class="order-detail-total-row order-detail-total-final">
+        <span>Total</span>
+        <span>Rs. {{ order.total }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-detail-card">
+    <h3 class="order-detail-section-title">Shipping Details</h3>
+    <div class="order-detail-info-grid">
+      <div class="order-detail-info-item">
+        <div class="order-detail-info-label">Name</div>
+        <div class="order-detail-info-value">{{ order.first_name }} {{ order.last_name }}</div>
+      </div>
+      <div class="order-detail-info-item">
+        <div class="order-detail-info-label">Email</div>
+        <div class="order-detail-info-value">{{ order.email }}</div>
+      </div>
+      <div class="order-detail-info-item">
+        <div class="order-detail-info-label">Phone</div>
+        <div class="order-detail-info-value">{{ order.phone|default:"-" }}</div>
+      </div>
+      <div class="order-detail-info-item">
+        <div class="order-detail-info-label">City</div>
+        <div class="order-detail-info-value">{{ order.city }}</div>
+      </div>
+      <div class="order-detail-info-item">
+        <div class="order-detail-info-label">Address</div>
+        <div class="order-detail-info-value">{{ order.address }}</div>
+      </div>
+      <div class="order-detail-info-item">
+        <div class="order-detail-info-label">Zip Code</div>
+        <div class="order-detail-info-value">{{ order.zip_code }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

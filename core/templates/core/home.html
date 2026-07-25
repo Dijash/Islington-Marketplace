@@ -132,7 +132,18 @@
             <p class="product-card-desc">{{ product.description|truncatewords:12 }}</p>
             <div class="product-card-footer">
               <span class="product-card-price">Rs. {{ product.price }}</span>
-              <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View More</a>
+              <div class="product-card-actions">
+                <button class="product-card-cart-btn add-to-cart-btn{% if product.id|stringformat:'d' in cart_product_ids %} added{% endif %}" data-product-id="{{ product.id }}" aria-label="Add to cart">
+                  {% if product.id|stringformat:'d' in cart_product_ids %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Added
+                  {% else %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                    Add
+                  {% endif %}
+                </button>
+                <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View</a>
+              </div>
             </div>
           </div>
         </article>
@@ -177,7 +188,18 @@
             <p class="product-card-desc">{{ product.description|truncatewords:12 }}</p>
             <div class="product-card-footer">
               <span class="product-card-price">Rs. {{ product.price }}</span>
-              <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View More</a>
+              <div class="product-card-actions">
+                <button class="product-card-cart-btn add-to-cart-btn{% if product.id|stringformat:'d' in cart_product_ids %} added{% endif %}" data-product-id="{{ product.id }}" aria-label="Add to cart">
+                  {% if product.id|stringformat:'d' in cart_product_ids %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Added
+                  {% else %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                    Add
+                  {% endif %}
+                </button>
+                <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View</a>
+              </div>
             </div>
           </div>
         </article>
@@ -240,7 +262,18 @@
             <p class="product-card-desc">{{ product.description|truncatewords:12 }}</p>
             <div class="product-card-footer">
               <span class="product-card-price">Rs. {{ product.price }}</span>
-              <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View More</a>
+              <div class="product-card-actions">
+                <button class="product-card-cart-btn add-to-cart-btn{% if product.id|stringformat:'d' in cart_product_ids %} added{% endif %}" data-product-id="{{ product.id }}" aria-label="Add to cart">
+                  {% if product.id|stringformat:'d' in cart_product_ids %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Added
+                  {% else %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                    Add
+                  {% endif %}
+                </button>
+                <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View</a>
+              </div>
             </div>
           </div>
         </article>

@@ -24,6 +24,7 @@
 .seller-btn-add {
     display: inline-flex;
     align-items: center;
+    gap: 8px;
     padding: 0.65rem 1.4rem;
     background: var(--color-accent);
     color: #fff;
@@ -80,6 +81,14 @@
     vertical-align: middle;
 }
 
+.seller-products-table td.seller-table-actions {
+    vertical-align: middle;
+}
+
+.seller-products-table td.seller-table-status {
+    vertical-align: middle;
+}
+
 .dark-mode .seller-products-table td {
     border-bottom-color: var(--border-strong);
 }
@@ -116,6 +125,28 @@
     font-weight: 700;
 }
 
+/* Status text (plain, not pill) */
+.seller-status {
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.seller-status-approved {
+    color: #166534;
+}
+
+.dark-mode .seller-status-approved {
+    color: #86efac;
+}
+
+.seller-status-pending {
+    color: #854d0e;
+}
+
+.dark-mode .seller-status-pending {
+    color: #fde047;
+}
+
 .seller-badge {
     display: inline-block;
     padding: 4px 10px;
@@ -144,18 +175,26 @@
     color: #fde047;
 }
 
+/* Fixed Table Actions */
 .seller-table-actions {
-    display: flex;
-    gap: 8px;
+    white-space: nowrap;
+}
+
+.seller-action-btn + .seller-action-btn {
+    margin-left: 8px;
 }
 
 .seller-action-btn {
-    padding: 5px 12px;
-    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
     font-size: 0.8rem;
     font-weight: 600;
     text-decoration: none;
-    transition: background var(--transition-fast);
+    transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .seller-action-edit {
@@ -223,7 +262,9 @@
 }
 
 .seller-form-back {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--color-accent);
@@ -234,6 +275,10 @@
 
 .seller-form-back:hover {
     color: var(--color-accent-dark);
+}
+
+.seller-form-back svg {
+    flex-shrink: 0;
 }
 
 .seller-form-title {

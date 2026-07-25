@@ -24,7 +24,6 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
             ],
             options={
-                'db_table': 'core_blog',
                 'ordering': ['order', '-created_at'],
             },
         ),

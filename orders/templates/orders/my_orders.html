@@ -1,0 +1,98 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}My Orders | Islington Marketplace{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/seller.css' %}">
+  <style>
+    .orders-page { max-width: 1100px; margin: 2rem auto; padding: 0 24px; }
+    .orders-header { margin-bottom: 2rem; }
+    .orders-title { font-size: 1.75rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; }
+    .orders-empty { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+    .orders-empty svg { margin-bottom: 1rem; color: var(--border-soft); }
+    .orders-empty p { font-size: 1rem; margin-bottom: 1.5rem; }
+    .orders-empty-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0.75rem 1.75rem; background: var(--color-accent); color: #fff; border-radius: 10px; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: background 0.2s, transform 0.2s; }
+    .orders-empty-link:hover { background: var(--color-accent-dark); transform: translateY(-1px); }
+    .orders-empty-link svg { margin-bottom: 0; color: #fff; }
+    .order-card { background: var(--bg-surface); border: 1px solid var(--border-soft); border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; transition: border-color 0.2s; }
+    .order-card:hover { border-color: var(--color-accent); }
+    .order-card-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1rem; }
+    .order-card-id { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+    .order-card-date { font-size: 0.82rem; color: var(--text-muted); }
+    .order-status-badge { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+    .order-status-placed { background: #fef9c3; color: #854d0e; }
+    .order-status-shipped { background: #dbeafe; color: #1e40af; }
+    .order-status-delivered { background: #dcfce7; color: #166534; }
+    .dark-mode .order-status-placed { background: #713f12; color: #fde047; }
+    .dark-mode .order-status-shipped { background: #1e3a5f; color: #93c5fd; }
+    .dark-mode .order-status-delivered { background: #14532d; color: #86efac; }
+    .order-card-items { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+    .order-card-item { display: flex; align-items: center; gap: 12px; font-size: 0.88rem; color: var(--text-main); }
+    .order-card-item-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: var(--surface-tint); flex-shrink: 0; }
+    .order-card-item-img-placeholder { width: 40px; height: 40px; border-radius: 6px; background: var(--surface-tint); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--color-accent); font-size: 0.85rem; flex-shrink: 0; }
+    .order-card-item-info { flex: 1; min-width: 0; }
+    .order-card-item-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .order-card-item-qty { font-size: 0.78rem; color: var(--text-muted); }
+    .order-card-item-price { font-weight: 700; white-space: nowrap; }
+    .order-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border-soft); }
+    .order-card-total { font-size: 1rem; font-weight: 800; color: var(--text-main); }
+    .order-card-view { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--bg-input); color: var(--text-main); border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .order-card-view:hover { background: var(--color-accent); color: #fff; }
+    .order-card-view svg { flex-shrink: 0; }
+  </style>
+{% endblock %}
+
+{% block content %}
+<section class="orders-page">
+  <div class="orders-header">
+    <h1 class="orders-title">My Orders</h1>
+  </div>
+
+  {% if orders %}
+    {% for order in orders %}
+    <div class="order-card">
+      <div class="order-card-header">
+        <div>
+          <span class="order-card-id">Order #{{ order.id }}</span>
+          <span class="order-card-date">{{ order.created_at|date:"M d, Y" }}</span>
+        </div>
+        <span class="order-status-badge {{ order.get_status_badge_class }}">{{ order.get_status_display }}</span>
+      </div>
+      <div class="order-card-items">
+        {% for item in order.items.all %}
+        <div class="order-card-item">
+          {% if item.product and item.product.image %}
+            <img class="order-card-item-img" src="{{ item.product.image.url }}" alt="{{ item.product_name }}">
+          {% else %}
+            <div class="order-card-item-img-placeholder">{{ item.product_name|first }}</div>
+          {% endif %}
+          <div class="order-card-item-info">
+            <div class="order-card-item-name">{{ item.product_name }}</div>
+            <div class="order-card-item-qty">Qty: {{ item.quantity }}</div>
+          </div>
+          <div class="order-card-item-price">Rs. {{ item.line_total }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="order-card-footer">
+        <span class="order-card-total">Total: Rs. {{ order.total }}</span>
+        <a href="{% url 'order_detail' order.id %}" class="order-card-view">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          View Details
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="orders-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <p>You haven't placed any orders yet.</p>
+      <a href="{% url 'product_list' %}" class="orders-empty-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Browse Products
+      </a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

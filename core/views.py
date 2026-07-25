@@ -5,7 +5,8 @@ from pathlib import Path
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.contrib import messages
 from accounts.models import Seller, Customer
 from Product.models import Product, Category
 from .models import Ad, SideAd, BannerAd, CardAd
@@ -225,14 +226,19 @@ def register_view(request):
                 image=image,
                 shop_name=shop_name,
             )
+            seller_group, _ = Group.objects.get_or_create(name='Seller')
+            user.groups.add(seller_group)
         else:
             Customer.objects.create(
                 user=user,
                 phone=phone,
                 image=image,
             )
+            customer_group, _ = Group.objects.get_or_create(name='Customer')
+            user.groups.add(customer_group)
 
         login(request, user)
+        messages.success(request, f'Welcome {first_name}! Your account has been created.')
         return redirect('home')
 
     return render(request, 'core/register.html')
@@ -245,11 +251,14 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            messages.success(request, f'Welcome back, {user.first_name or user.username}!')
             return redirect('home')
+        messages.error(request, 'Invalid username or password.')
         return render(request, 'core/login.html', {'error': 'Invalid username or password.'})
     return render(request, 'core/login.html')
 
 
 def logout_view(request):
     logout(request)
+    messages.info(request, 'You have been logged out.')
     return redirect('home')

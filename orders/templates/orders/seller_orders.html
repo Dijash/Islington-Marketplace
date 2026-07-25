@@ -1,0 +1,85 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Seller Orders | Islington Marketplace{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/seller.css' %}">
+  <style>
+    .seller-orders-page { max-width: 1100px; margin: 2rem auto; padding: 0 24px; }
+    .seller-orders-header { margin-bottom: 2rem; }
+    .seller-orders-title { font-size: 1.75rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; }
+    .seller-orders-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-top: 0.35rem; }
+    .orders-empty { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+    .orders-empty svg { margin-bottom: 1rem; color: var(--border-soft); }
+    .orders-empty p { font-size: 1rem; }
+    .seller-order-card { background: var(--bg-surface); border: 1px solid var(--border-soft); border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
+    .seller-order-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1rem; }
+    .seller-order-id { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+    .seller-order-date { font-size: 0.82rem; color: var(--text-muted); }
+    .seller-order-buyer { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .seller-order-buyer strong { color: var(--text-main); }
+    .seller-order-items { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+    .seller-order-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--surface-tint); border-radius: 8px; font-size: 0.88rem; }
+    .seller-order-item-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+    .seller-order-item-img-placeholder { width: 40px; height: 40px; border-radius: 6px; background: var(--bg-surface); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--color-accent); font-size: 0.85rem; flex-shrink: 0; }
+    .seller-order-item-info { flex: 1; }
+    .seller-order-item-name { font-weight: 600; }
+    .seller-order-item-qty { font-size: 0.78rem; color: var(--text-muted); }
+    .seller-order-item-price { font-weight: 700; }
+    .seller-order-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border-soft); }
+    .seller-order-total { font-weight: 700; color: var(--text-main); }
+  </style>
+{% endblock %}
+
+{% block content %}
+<section class="seller-orders-page">
+  <div class="seller-orders-header">
+    <h1 class="seller-orders-title">Incoming Orders</h1>
+    <p class="seller-orders-subtitle">Orders containing your products</p>
+  </div>
+
+  {% if orders %}
+    {% for order in orders %}
+    <div class="seller-order-card">
+      <div class="seller-order-header">
+        <div>
+          <span class="seller-order-id">Order #{{ order.id }}</span>
+          <span class="seller-order-date">{{ order.created_at|date:"M d, Y H:i" }}</span>
+        </div>
+        <span class="order-status-badge {{ order.get_status_badge_class }}">{{ order.get_status_display }}</span>
+      </div>
+      <div class="seller-order-buyer">
+        Buyer: <strong>{{ order.first_name }} {{ order.last_name }}</strong> &middot; {{ order.email }}
+      </div>
+      <div class="seller-order-items">
+        {% for item in order.items.all %}
+          {% if item.seller == request.user.seller_profile %}
+          <div class="seller-order-item">
+            {% if item.product and item.product.image %}
+              <img class="seller-order-item-img" src="{{ item.product.image.url }}" alt="{{ item.product_name }}">
+            {% else %}
+              <div class="seller-order-item-img-placeholder">{{ item.product_name|first }}</div>
+            {% endif %}
+            <div class="seller-order-item-info">
+              <div class="seller-order-item-name">{{ item.product_name }}</div>
+              <div class="seller-order-item-qty">Qty: {{ item.quantity }}</div>
+            </div>
+            <div class="seller-order-item-price">Rs. {{ item.line_total }}</div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="seller-order-footer">
+        <span class="seller-order-total">Your earnings: Rs. {% for item in order.items.all %}{% if item.seller == request.user.seller_profile %}{{ item.line_total }}{% endif %}{% endfor %}</span>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="orders-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <p>No orders containing your products yet.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

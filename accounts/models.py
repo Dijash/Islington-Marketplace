@@ -8,7 +8,7 @@ class Seller(models.Model):
     image = models.FileField(upload_to='profiles/', blank=True)
     shop_name = models.CharField(max_length=200)
     shop_description = models.TextField(blank=True)
-    gst_number = models.CharField(max_length=20, blank=True)
+    pan_number = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
