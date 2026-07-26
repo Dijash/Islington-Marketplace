@@ -7,6 +7,44 @@
 
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/pages/checkout.css' %}">
+  <style>
+    .payment-method-section { margin-top: 0; }
+    .payment-method-options { display: flex; gap: 12px; margin-bottom: 0; }
+    .payment-method-btn {
+      flex: 1; display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+      border: 2px solid var(--border-soft); border-radius: 10px; background: var(--bg-surface);
+      color: var(--text-main); cursor: pointer; transition: all 0.2s; font-size: 0.9rem; font-weight: 600;
+    }
+    .payment-method-btn:hover { border-color: var(--color-accent); }
+    .payment-method-btn.active { border-color: var(--color-accent); background: rgba(var(--color-accent-rgb, 99,102,241), 0.08); }
+    .payment-method-btn svg { flex-shrink: 0; }
+    .payment-method-label { font-weight: 600; }
+    .payment-method-desc { font-size: 0.78rem; color: var(--text-muted); font-weight: 400; }
+    .card-form-section { display: none; margin-top: 20px; }
+    .card-form-section.show { display: block; }
+    .cod-info {
+      display: none; margin-top: 16px; padding: 14px 16px; border-radius: 10px;
+      background: rgba(var(--color-accent-rgb, 99,102,241), 0.06); border: 1px solid var(--border-soft);
+      font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;
+    }
+    .cod-info.show { display: block; }
+    .cod-info strong { color: var(--text-main); }
+    .checkout-action-btn {
+      width: 100%; padding: 14px 24px; border: none; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px;
+    }
+    .checkout-action-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-cod {
+      background: var(--color-accent); color: #fff;
+    }
+    .btn-cod:hover:not(:disabled) { background: var(--color-accent-dark); }
+    .btn-card {
+      background: #1a1f71; color: #fff;
+    }
+    .btn-card:hover:not(:disabled) { background: #0f1452; }
+    .checkout-section-card.hidden-section { display: none; }
+  </style>
 {% endblock %}
 
 {% block content %}
@@ -21,7 +59,7 @@
       </h2>
       <div class="checkout-form-grid">
         <div class="checkout-field">
-          <label class="checkout-label" for=" firstName">First Name</label>
+          <label class="checkout-label" for="firstName">First Name</label>
           <input class="checkout-input" type="text" id="firstName" placeholder="John" value="{{ contact.first_name|default:'' }}" required>
         </div>
         <div class="checkout-field">
@@ -63,40 +101,67 @@
     <div class="checkout-section-card">
       <h2 class="checkout-section-title">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        Payment Details
+        Payment Method
       </h2>
-      <div class="checkout-form-grid">
-        <div class="checkout-field checkout-field-full">
-          <label class="checkout-label" for="cardName">Name on Card</label>
-          <input class="checkout-input" type="text" id="cardName" placeholder="John Doe" value="{{ payment.card_name|default:'' }}" required>
-        </div>
-        <div class="checkout-field checkout-field-full">
-          <label class="checkout-label" for="cardNumber">Card Number</label>
-          <div class="checkout-card-input-wrap">
-            <input class="checkout-input checkout-card-input" type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" value="{{ payment.card_number|default:'' }}" required>
-            <div class="checkout-card-icons">
-              <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><rect width="28" height="20" rx="3" fill="#1A1F71"/><text x="14" y="13" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="sans-serif">VISA</text></svg>
+      <div class="payment-method-options">
+        <button type="button" class="payment-method-btn active" id="btnCOD" onclick="selectPayment('cod')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12a2 2 0 100-4 2 2 0 000 4z"/><path d="M6 12h.01M18 12h.01"/></svg>
+          <div>
+            <div class="payment-method-label">Cash on Delivery</div>
+            <div class="payment-method-desc">Pay when you receive</div>
+          </div>
+        </button>
+        <button type="button" class="payment-method-btn" id="btnCard" onclick="selectPayment('card')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <div>
+            <div class="payment-method-label">Pay Now</div>
+            <div class="payment-method-desc">Credit / Debit card</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="cod-info show" id="codInfo">
+        <strong>Cash on Delivery:</strong> Pay in cash when your order is delivered to your shipping address. Have the exact amount ready.
+      </div>
+
+      <div class="card-form-section" id="cardFormSection">
+        <div class="checkout-form-grid">
+          <div class="checkout-field checkout-field-full">
+            <label class="checkout-label" for="cardName">Name on Card</label>
+            <input class="checkout-input" type="text" id="cardName" placeholder="John Doe">
+          </div>
+          <div class="checkout-field checkout-field-full">
+            <label class="checkout-label" for="cardNumber">Card Number</label>
+            <div class="checkout-card-input-wrap">
+              <input class="checkout-input checkout-card-input" type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+              <div class="checkout-card-icons">
+                <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><rect width="28" height="20" rx="3" fill="#1A1F71"/><text x="14" y="13" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="sans-serif">VISA</text></svg>
+              </div>
+            </div>
+          </div>
+          <div class="checkout-field">
+            <label class="checkout-label" for="cardExpiry">Expiry</label>
+            <input class="checkout-input" type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+          </div>
+          <div class="checkout-field">
+            <label class="checkout-label" for="cardCvv">CVV</label>
+            <div class="checkout-card-input-wrap">
+              <input class="checkout-input checkout-card-input" type="text" id="cardCvv" placeholder="123" maxlength="4">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
             </div>
           </div>
         </div>
-        <div class="checkout-field">
-          <label class="checkout-label" for="cardExpiry">Expiry</label>
-          <input class="checkout-input" type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" value="{{ payment.card_expiry|default:'' }}" required>
-        </div>
-        <div class="checkout-field">
-          <label class="checkout-label" for="cardCvv">CVV</label>
-          <div class="checkout-card-input-wrap">
-            <input class="checkout-input checkout-card-input" type="text" id="cardCvv" placeholder="123" maxlength="4" value="{{ payment.card_cvv|default:'' }}" required>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          </div>
-        </div>
+        <button type="button" class="checkout-action-btn btn-card" id="payCardBtn" onclick="placeOrder('card')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Pay Rs. {{ total }}
+        </button>
       </div>
-    </div>
 
-    <button class="checkout-pay-btn" id="checkoutPayBtn" type="button">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-      Pay Rs. {{ total }}
-    </button>
+      <button type="button" class="checkout-action-btn btn-cod" id="placeOrderBtn" onclick="placeOrder('cod')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Place Order — Cash on Delivery
+      </button>
+    </div>
   </div>
 
   <div class="checkout-summary-section">
@@ -148,11 +213,11 @@
     <div class="checkout-success-icon">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
     </div>
-    <h2 class="checkout-success-title">Payment Successful!</h2>
-    <p class="checkout-success-text">Your order has been placed. Thank you for shopping with Islington Marketplace.</p>
-    <a href="{% url 'home' %}" class="checkout-success-btn">
+    <h2 class="checkout-success-title">Order Placed Successfully!</h2>
+    <p class="checkout-success-text" id="successText">Your order has been placed. Thank you for shopping with Islington Marketplace.</p>
+    <a href="{% url 'checkout_success' %}" class="checkout-success-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      Back to Home
+      Continue
     </a>
   </div>
 </div>
@@ -160,12 +225,136 @@
 
 {% block extra_scripts %}
 <script>
+var selectedPayment = 'cod';
+
+function selectPayment(method) {
+  selectedPayment = method;
+  var btnCOD = document.getElementById('btnCOD');
+  var btnCard = document.getElementById('btnCard');
+  var cardSection = document.getElementById('cardFormSection');
+  var codInfo = document.getElementById('codInfo');
+  var codBtn = document.getElementById('placeOrderBtn');
+
+  if (method === 'cod') {
+    btnCOD.classList.add('active');
+    btnCard.classList.remove('active');
+    cardSection.classList.remove('show');
+    codInfo.classList.add('show');
+    codBtn.style.display = '';
+  } else {
+    btnCard.classList.add('active');
+    btnCOD.classList.remove('active');
+    cardSection.classList.add('show');
+    codInfo.classList.remove('show');
+    codBtn.style.display = 'none';
+  }
+}
+
+function validateContactFields() {
+  var fields = [
+    document.getElementById('firstName'),
+    document.getElementById('lastName'),
+    document.getElementById('email'),
+    document.getElementById('address'),
+    document.getElementById('city'),
+    document.getElementById('zip')
+  ];
+  var valid = true;
+  fields.forEach(function(f) {
+    if (f && !f.value.trim()) {
+      f.style.borderColor = '#ef4444';
+      valid = false;
+    } else if (f) {
+      f.style.borderColor = '';
+    }
+  });
+  return valid;
+}
+
+function validateCardFields() {
+  var fields = [
+    document.getElementById('cardName'),
+    document.getElementById('cardNumber'),
+    document.getElementById('cardExpiry'),
+    document.getElementById('cardCvv')
+  ];
+  var valid = true;
+  fields.forEach(function(f) {
+    if (f && !f.value.trim()) {
+      f.style.borderColor = '#ef4444';
+      valid = false;
+    } else if (f) {
+      f.style.borderColor = '';
+    }
+  });
+  return valid;
+}
+
+function placeOrder(method) {
+  if (!validateContactFields()) return;
+  if (method === 'card' && !validateCardFields()) return;
+
+  var formData = new FormData();
+  formData.append('payment_method', method);
+  formData.append('first_name', document.getElementById('firstName').value);
+  formData.append('last_name', document.getElementById('lastName').value);
+  formData.append('email', document.getElementById('email').value);
+  formData.append('phone', document.getElementById('phone').value);
+  formData.append('address', document.getElementById('address').value);
+  formData.append('city', document.getElementById('city').value);
+  formData.append('zip', document.getElementById('zip').value);
+
+  if (method === 'card') {
+    formData.append('card_name', document.getElementById('cardName').value);
+    formData.append('card_number', document.getElementById('cardNumber').value);
+    formData.append('card_expiry', document.getElementById('cardExpiry').value);
+    formData.append('card_cvv', document.getElementById('cardCvv').value);
+  }
+
+  var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+  if (csrfToken) formData.append('csrfmiddlewaretoken', csrfToken.value);
+
+  var overlay = document.getElementById('checkoutSuccessOverlay');
+  var successText = document.getElementById('successText');
+  var btn = method === 'card' ? document.getElementById('payCardBtn') : document.getElementById('placeOrderBtn');
+
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Processing...';
+
+  fetch('{% url "place_order" %}', {
+    method: 'POST',
+    body: formData,
+    credentials: 'same-origin'
+  }).then(function(response) {
+    return response.json();
+  }).then(function(data) {
+    if (data.status === 'ok') {
+      if (method === 'cod') {
+        successText.textContent = 'Your order has been placed with Cash on Delivery. Pay when your order arrives.';
+      } else {
+        successText.textContent = 'Payment successful! Your order has been placed.';
+      }
+      overlay.classList.add('show');
+    } else {
+      alert(data.message || 'Failed to place order. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = method === 'card'
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Pay Rs. {{ total }}'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Place Order — Cash on Delivery';
+    }
+  }).catch(function() {
+    alert('Network error. Please try again.');
+    btn.disabled = false;
+    btn.innerHTML = method === 'card'
+      ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Pay Rs. {{ total }}'
+      : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Place Order — Cash on Delivery';
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   var cardNumber = document.getElementById('cardNumber');
   var cardExpiry = document.getElementById('cardExpiry');
   var cardCvv = document.getElementById('cardCvv');
-  var payBtn = document.getElementById('checkoutPayBtn');
-  var overlay = document.getElementById('checkoutSuccessOverlay');
 
   if (cardNumber) {
     cardNumber.addEventListener('input', function (e) {
@@ -188,77 +377,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (cardCvv) {
     cardCvv.addEventListener('input', function (e) {
       e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
-    });
-  }
-
-  function savePaymentCookie() {
-    var data = {
-      card_name: document.getElementById('cardName').value,
-      card_number: cardNumber.value,
-      card_expiry: cardExpiry.value,
-      card_cvv: cardCvv.value
-    };
-    var expires = new Date();
-    expires.setFullYear(expires.getFullYear() + 1);
-    document.cookie = 'checkout_payment=' + encodeURIComponent(JSON.stringify(data)) + ';expires=' + expires.toUTCString() + ';path=/;SameSite=Lax';
-  }
-
-  if (payBtn) {
-    payBtn.addEventListener('click', function () {
-      var fields = [
-        document.getElementById('firstName'),
-        document.getElementById('lastName'),
-        document.getElementById('email'),
-        document.getElementById('address'),
-        document.getElementById('city'),
-        document.getElementById('zip'),
-        document.getElementById('cardName'),
-        cardNumber,
-        cardExpiry,
-        cardCvv
-      ];
-      var valid = true;
-
-      fields.forEach(function (f) {
-        if (f && !f.value.trim()) {
-          f.style.borderColor = '#ef4444';
-          valid = false;
-        } else if (f) {
-          f.style.borderColor = '';
-        }
-      });
-
-      if (!valid) return;
-
-      savePaymentCookie();
-
-      var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-      var formData = new FormData();
-      formData.append('first_name', document.getElementById('firstName').value);
-      formData.append('last_name', document.getElementById('lastName').value);
-      formData.append('email', document.getElementById('email').value);
-      formData.append('phone', document.getElementById('phone').value);
-      formData.append('address', document.getElementById('address').value);
-      formData.append('city', document.getElementById('city').value);
-      formData.append('zip', document.getElementById('zip').value);
-      if (csrfToken) formData.append('csrfmiddlewaretoken', csrfToken.value);
-
-      fetch('{% url "save_checkout_data" %}', {
-        method: 'POST',
-        body: formData,
-        credentials: 'same-origin'
-      }).then(function() {
-        payBtn.disabled = true;
-        payBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Processing...';
-
-        setTimeout(function () {
-          overlay.classList.add('show');
-        }, 1500);
-
-        setTimeout(function () {
-          window.location.href = '/checkout/success/';
-        }, 3500);
-      });
     });
   }
 

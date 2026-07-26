@@ -29,6 +29,7 @@
 
     <div class="nav-actions">
         
+        {% if not user.is_staff and not user.seller_profile %}
         <a href="{% url 'my_orders' %}" class="action-link action-orders">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -38,6 +39,7 @@
                 <span class="action-value">Orders</span>
             </div>
         </a>
+        {% endif %}
 
         {% if user.is_authenticated %}
         <div class="nav-dropdown">
@@ -63,7 +65,9 @@
             </button>
             <div class="nav-dropdown-menu">
                 <a href="{% url 'profile' %}" class="nav-dropdown-item">My Profile</a>
+                {% if not user.is_staff and not user.seller_profile %}
                 <a href="{% url 'my_orders' %}" class="nav-dropdown-item">My Orders</a>
+                {% endif %}
                 {% if user.is_staff %}
                   <a href="{% url 'admin:index' %}" class="nav-dropdown-item">Admin Dashboard</a>
                   <a href="{% url 'admin_orders' %}" class="nav-dropdown-item">Manage Orders</a>
@@ -104,6 +108,7 @@
             </svg>
         </button>
 
+        {% if not user.is_staff and not user.seller_profile %}
         <div class="nav-cart-dropdown">
             <button class="cart-btn" id="navCartBtn" aria-label="Shopping cart">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -131,6 +136,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <button class="nav-hamburger" id="navHamburger" aria-label="Open menu">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -156,7 +162,9 @@
                 <a href="" class="nav-mobile-link{% if request.resolver_match.url_name == 'category_list' %} active{% endif %}">Categories</a>
                 <a href="{% url 'deals' %}" class="nav-mobile-link{% if request.resolver_match.url_name == 'deals' %} active{% endif %}">Deals</a>
                 <a href="{% url 'blog_list' %}" class="nav-mobile-link{% if request.resolver_match.url_name == 'blog_list' %} active{% endif %}">Blog</a>
+                {% if not user.is_staff and not user.seller_profile %}
                 <a href="{% url 'my_orders' %}" class="nav-mobile-link">Orders</a>
+                {% endif %}
                 {% if user.is_authenticated %}
                   {% if user.is_staff %}
                     <a href="{% url 'admin:index' %}" class="nav-mobile-link">Admin Dashboard</a>

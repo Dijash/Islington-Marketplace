@@ -246,8 +246,18 @@ def register_view(request):
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        identifier = request.POST['username'].strip()
         password = request.POST['password']
+
+        if '@' in identifier:
+            try:
+                user_obj = User.objects.get(email__iexact=identifier)
+                username = user_obj.username
+            except User.DoesNotExist:
+                username = identifier
+        else:
+            username = identifier
+
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)

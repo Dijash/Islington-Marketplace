@@ -2,11 +2,22 @@ import json
 from decimal import Decimal
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.contrib import messages
 from Product.models import Product
 
 
+def _is_customer(user):
+    return user.is_authenticated and not user.is_staff and not hasattr(user, 'seller_profile')
+
+
+@login_required
 def checkout(request):
+    if not _is_customer(request.user):
+        messages.error(request, 'Only customers can place orders.')
+        return redirect('home')
+
     cart = request.session.get('cart', {})
 
     items = []
@@ -30,8 +41,6 @@ def checkout(request):
         return redirect('product_list')
 
     contact = {}
-    payment = {}
-
     if request.user.is_authenticated:
         user = request.user
         contact['first_name'] = user.first_name
@@ -42,13 +51,6 @@ def checkout(request):
         if profile:
             contact['phone'] = profile.phone
 
-    payment_cookie = request.COOKIES.get('checkout_payment')
-    if payment_cookie:
-        try:
-            payment = json.loads(payment_cookie)
-        except (json.JSONDecodeError, TypeError):
-            payment = {}
-
     return render(request, 'payment/checkout.html', {
         'items': items,
         'subtotal': str(subtotal),
@@ -56,58 +58,90 @@ def checkout(request):
         'total': str(total),
         'item_count': sum(i['quantity'] for i in items),
         'contact': contact,
-        'payment': payment,
     })
 
 
-def checkout_success(request):
-    from orders.models import Order, OrderItem
+@require_POST
+@login_required
+def place_order(request):
+    if not _is_customer(request.user):
+        return JsonResponse({'status': 'error', 'message': 'Only customers can place orders.'}, status=403)
 
     cart = request.session.get('cart', {})
-    checkout_data = request.session.get('checkout_data', {})
+    if not cart:
+        return JsonResponse({'status': 'error', 'message': 'Cart is empty.'}, status=400)
 
-    if cart and request.user.is_authenticated:
-        subtotal = Decimal('0')
-        for item in cart.values():
-            subtotal += Decimal(item['price']) * item['quantity']
-        shipping = Decimal('0') if subtotal == 0 else Decimal('150')
-        total = subtotal + shipping
+    payment_method = request.POST.get('payment_method', 'cod')
+    if payment_method not in ('cod', 'card'):
+        return JsonResponse({'status': 'error', 'message': 'Invalid payment method.'}, status=400)
 
-        order = Order.objects.create(
-            user=request.user,
-            first_name=checkout_data.get('first_name', request.user.first_name),
-            last_name=checkout_data.get('last_name', request.user.last_name),
-            email=checkout_data.get('email', request.user.email),
-            phone=checkout_data.get('phone', ''),
-            address=checkout_data.get('address', ''),
-            city=checkout_data.get('city', ''),
-            zip_code=checkout_data.get('zip', ''),
-            subtotal=subtotal,
-            shipping=shipping,
-            total=total,
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    email = request.POST.get('email', '').strip()
+    phone = request.POST.get('phone', '').strip()
+    address = request.POST.get('address', '').strip()
+    city = request.POST.get('city', '').strip()
+    zip_code = request.POST.get('zip', '').strip()
+
+    if not all([first_name, last_name, email, address, city, zip_code]):
+        return JsonResponse({'status': 'error', 'message': 'All required fields must be filled.'}, status=400)
+
+    if payment_method == 'card':
+        card_name = request.POST.get('card_name', '').strip()
+        card_number = request.POST.get('card_number', '').strip()
+        card_expiry = request.POST.get('card_expiry', '').strip()
+        card_cvv = request.POST.get('card_cvv', '').strip()
+        if not all([card_name, card_number, card_expiry, card_cvv]):
+            return JsonResponse({'status': 'error', 'message': 'All card details are required.'}, status=400)
+
+    subtotal = Decimal('0')
+    for item in cart.values():
+        subtotal += Decimal(item['price']) * item['quantity']
+    shipping = Decimal('0') if subtotal == 0 else Decimal('150')
+    total = subtotal + shipping
+
+    from orders.models import Order, OrderItem
+    order = Order.objects.create(
+        user=request.user,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        phone=phone,
+        address=address,
+        city=city,
+        zip_code=zip_code,
+        payment_method=payment_method,
+        subtotal=subtotal,
+        shipping=shipping,
+        total=total,
+    )
+
+    for pid, item in cart.items():
+        product = None
+        seller = None
+        try:
+            product = Product.objects.get(id=pid)
+            seller = product.seller
+        except Product.DoesNotExist:
+            pass
+
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            product_name=item['name'],
+            product_price=Decimal(item['price']),
+            quantity=item['quantity'],
+            seller=seller,
         )
-
-        for pid, item in cart.items():
-            product = None
-            seller = None
-            try:
-                product = Product.objects.get(id=pid)
-                seller = product.seller
-            except Product.DoesNotExist:
-                pass
-
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                product_name=item['name'],
-                product_price=Decimal(item['price']),
-                quantity=item['quantity'],
-                seller=seller,
-            )
 
     request.session['cart'] = {}
     request.session['checkout_data'] = {}
     request.session.modified = True
+
+    return JsonResponse({'status': 'ok', 'order_id': order.id})
+
+
+def checkout_success(request):
     return render(request, 'payment/checkout_success.html')
 
 

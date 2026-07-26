@@ -22,7 +22,7 @@
     </div>
   </main>
 
-  {% include 'includes/footer.html' %}
+  {% block footer %}{% include 'includes/footer.html' %}{% endblock %}
 
   <script src="{% static 'js/main.js' %}"></script>
   <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>

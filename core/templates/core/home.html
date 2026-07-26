@@ -133,6 +133,7 @@
             <div class="product-card-footer">
               <span class="product-card-price">Rs. {{ product.price }}</span>
               <div class="product-card-actions">
+                {% if not user.is_staff and not user.seller_profile %}
                 <button class="product-card-cart-btn add-to-cart-btn{% if product.id|stringformat:'d' in cart_product_ids %} added{% endif %}" data-product-id="{{ product.id }}" aria-label="Add to cart">
                   {% if product.id|stringformat:'d' in cart_product_ids %}
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -142,6 +143,7 @@
                     Add
                   {% endif %}
                 </button>
+                {% endif %}
                 <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View</a>
               </div>
             </div>
@@ -189,6 +191,7 @@
             <div class="product-card-footer">
               <span class="product-card-price">Rs. {{ product.price }}</span>
               <div class="product-card-actions">
+                {% if not user.is_staff and not user.seller_profile %}
                 <button class="product-card-cart-btn add-to-cart-btn{% if product.id|stringformat:'d' in cart_product_ids %} added{% endif %}" data-product-id="{{ product.id }}" aria-label="Add to cart">
                   {% if product.id|stringformat:'d' in cart_product_ids %}
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -198,6 +201,7 @@
                     Add
                   {% endif %}
                 </button>
+                {% endif %}
                 <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View</a>
               </div>
             </div>
@@ -263,6 +267,7 @@
             <div class="product-card-footer">
               <span class="product-card-price">Rs. {{ product.price }}</span>
               <div class="product-card-actions">
+                {% if not user.is_staff and not user.seller_profile %}
                 <button class="product-card-cart-btn add-to-cart-btn{% if product.id|stringformat:'d' in cart_product_ids %} added{% endif %}" data-product-id="{{ product.id }}" aria-label="Add to cart">
                   {% if product.id|stringformat:'d' in cart_product_ids %}
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -272,6 +277,7 @@
                     Add
                   {% endif %}
                 </button>
+                {% endif %}
                 <a href="{% url 'product_detail' product.id %}" class="product-card-btn">View</a>
               </div>
             </div>

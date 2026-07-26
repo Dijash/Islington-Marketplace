@@ -28,6 +28,10 @@ def add_to_cart(request):
     product_id = request.POST.get('product_id')
     product = get_object_or_404(Product, id=product_id, is_approved=True)
 
+    user = request.user
+    if user.is_authenticated and (user.is_staff or hasattr(user, 'seller_profile')):
+        return JsonResponse({'status': 'error', 'message': 'Sellers and admins cannot add items to cart.'}, status=403)
+
     cart = _get_cart(request.session)
     pid = str(product_id)
 
